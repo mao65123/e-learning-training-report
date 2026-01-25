@@ -7,19 +7,34 @@ import { polishText, refineTextWithInstruction } from '../../services/geminiServ
 
 interface UnifiedGeneratorProps {
   initialData: FormData;
+  initialOutputs?: GeneratedOutput[];
   onSave: (entry: HistoryEntry) => void;
   onCancel: () => void;
 }
 
-export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData, onSave, onCancel }) => {
+export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData, initialOutputs, onSave, onCancel }) => {
   const [data, setData] = useState<FormData>(initialData);
   const [activeTab, setActiveTab] = useState<LengthType>(LengthType.STANDARD);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [outputs, setOutputs] = useState<Record<LengthType, GeneratedOutput | null>>({
-    [LengthType.STANDARD]: null,
-    [LengthType.LONG]: null,
-  });
-  const [editedText, setEditedText] = useState("");
+
+  // Initialize outputs from history if available
+  const getInitialOutputs = (): Record<LengthType, GeneratedOutput | null> => {
+    const result: Record<LengthType, GeneratedOutput | null> = {
+      [LengthType.STANDARD]: null,
+      [LengthType.LONG]: null,
+    };
+    if (initialOutputs) {
+      initialOutputs.forEach(output => {
+        result[output.lengthType] = output;
+      });
+    }
+    return result;
+  };
+
+  const [outputs, setOutputs] = useState<Record<LengthType, GeneratedOutput | null>>(getInitialOutputs());
+  const initialText = initialOutputs?.find(o => o.lengthType === LengthType.STANDARD)?.text ||
+                      initialOutputs?.[0]?.text || "";
+  const [editedText, setEditedText] = useState(initialText);
   const [refineInstruction, setRefineInstruction] = useState("");
   const [isRefining, setIsRefining] = useState(false);
   const [refineStatus, setRefineStatus] = useState<'idle' | 'refining' | 'done'>('idle');

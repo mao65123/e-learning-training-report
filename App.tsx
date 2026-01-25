@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { UnifiedGenerator } from './components/Generator/UnifiedGenerator';
 import { HistoryList } from './components/History/HistoryList';
 import { AdminPanel } from './components/Admin/AdminPanel';
-import { Role, FormData, HistoryEntry, TrainingType } from './types';
+import { Role, FormData, HistoryEntry, TrainingType, GeneratedOutput } from './types';
 
 const INITIAL_FORM_DATA: FormData = {
   userName: '',
@@ -41,6 +41,7 @@ const App: React.FC = () => {
   const [view, setView] = useState<'dashboard' | 'generator' | 'admin'>('dashboard');
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
+  const [currentOutputs, setCurrentOutputs] = useState<GeneratedOutput[] | undefined>(undefined);
 
   useEffect(() => {
     const saved = localStorage.getItem('training_report_history');
@@ -57,11 +58,13 @@ const App: React.FC = () => {
 
   const handleStartNew = () => {
     setFormData(INITIAL_FORM_DATA);
+    setCurrentOutputs(undefined);
     setView('generator');
   };
 
   const handleViewDetail = (item: HistoryEntry) => {
     setFormData(item.data);
+    setCurrentOutputs(item.outputs);
     setView('generator');
   };
 
@@ -86,8 +89,9 @@ const App: React.FC = () => {
         )}
         
         {view === 'generator' && (
-          <UnifiedGenerator 
-            initialData={formData} 
+          <UnifiedGenerator
+            initialData={formData}
+            initialOutputs={currentOutputs}
             onSave={(entry) => {
               saveHistory(entry);
               setView('dashboard');
