@@ -56,6 +56,12 @@ const App: React.FC = () => {
     localStorage.setItem('training_report_history', JSON.stringify(updated));
   };
 
+  const deleteHistory = (ids: string[]) => {
+    const updated = history.filter(h => !ids.includes(h.id));
+    setHistory(updated);
+    localStorage.setItem('training_report_history', JSON.stringify(updated));
+  };
+
   const handleStartNew = () => {
     setFormData(INITIAL_FORM_DATA);
     setCurrentOutputs(undefined);
@@ -81,10 +87,11 @@ const App: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 py-8">
         {view === 'dashboard' && (
-          <HistoryList 
-            history={history} 
-            onNew={handleStartNew} 
+          <HistoryList
+            history={history}
+            onNew={handleStartNew}
             onViewDetail={handleViewDetail}
+            onDelete={deleteHistory}
           />
         )}
         
