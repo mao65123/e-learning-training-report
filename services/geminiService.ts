@@ -45,6 +45,7 @@ export const polishText = async (
     3. 同一の接続詞（〜することで等）の連続禁止。
     4. 指定された文字数を厳守：${lengthPrompt}。
     5. 使用ツール（${allTools}）の実名と具体的な機能を自然に組み込む。
+    6. 「承知しました」「以下が文章です」などの前置きや説明は一切不要。報告文の本文のみを出力すること。
   `;
 
   const finalRole = data.jobRole === 'その他' ? data.jobRoleOther : data.jobRole;
@@ -105,7 +106,7 @@ export const refineTextWithInstruction = async (
     【厳守事項】
     - ビジネス文書としての品位を保つこと。
     - 以前のコンテキスト（${data.mainTool}の使用、${data.jobRole}としての役割など）を維持すること。
-    - 修正後の文章のみを出力してください。
+    - 修正後の文章のみを出力してください。「承知しました」などの前置きは不要。
     - 性格設定（${personality.name}）を尊重してください。
     - AI特有の過剰な表現は自動的に抑制してください。
   `;
