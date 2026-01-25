@@ -54,19 +54,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, setRole, current
                 </button>
               )}
               
-              <div className="flex items-center gap-2 ml-4 pl-4 border-l border-slate-200">
-                <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">Role:</span>
-                <select 
-                  value={role} 
-                  onChange={(e) => setRole(e.target.value as Role)}
-                  className="bg-slate-100 text-slate-700 text-xs rounded-full px-3 py-1 border-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value={Role.USER}>受講者</option>
-                  <option value={Role.HR}>人事</option>
-                  <option value={Role.ADMIN}>管理者</option>
-                </select>
-              </div>
-            </div>
+                          </div>
           </div>
         </div>
       </nav>

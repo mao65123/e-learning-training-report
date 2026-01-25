@@ -47,8 +47,8 @@ export const HelpPage: React.FC = () => {
             <li className="flex items-start gap-3">
               <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-xs font-bold shrink-0">必須</span>
               <div>
-                <strong>報告者名・タイトル</strong>
-                <p className="text-sm text-slate-500">あなたの名前や報告書のタイトルを入力</p>
+                <strong>報告者名</strong>
+                <p className="text-sm text-slate-500">あなたの名前を入力</p>
               </div>
             </li>
             <li className="flex items-start gap-3">

@@ -149,10 +149,10 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
                 <h3 className="font-bold text-slate-700">基本情報</h3>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-600">報告者名・タイトル <span className="text-red-500">*</span></label>
-                <input 
+                <label className="block text-sm font-medium text-slate-600">報告者名 <span className="text-red-500">*</span></label>
+                <input
                   type="text"
-                  placeholder="例：山田 太郎 / 2024年10月度AI研修報告"
+                  placeholder="例：山田 太郎"
                   className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   value={data.userName}
                   onChange={(e) => updateData({ userName: e.target.value })}
