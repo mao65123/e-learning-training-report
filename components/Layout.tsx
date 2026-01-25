@@ -33,14 +33,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, setRole, current
             </div>
 
             <div className="hidden md:flex items-center gap-6">
-              <button 
+              <button
                 onClick={() => setView('dashboard')}
                 className={`px-3 py-2 text-sm font-medium transition-colors ${currentView === 'dashboard' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-blue-600'}`}
               >
                 ダッシュボード
               </button>
+              <button
+                onClick={() => setView('help')}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${currentView === 'help' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-blue-600'}`}
+              >
+                使い方
+              </button>
               {role === Role.ADMIN && (
-                <button 
+                <button
                   onClick={() => setView('admin')}
                   className={`px-3 py-2 text-sm font-medium transition-colors ${currentView === 'admin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-blue-600'}`}
                 >

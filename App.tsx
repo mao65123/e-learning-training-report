@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { UnifiedGenerator } from './components/Generator/UnifiedGenerator';
 import { HistoryList } from './components/History/HistoryList';
 import { AdminPanel } from './components/Admin/AdminPanel';
+import { HelpPage } from './components/Help/HelpPage';
 import { Role, FormData, HistoryEntry, TrainingType, GeneratedOutput } from './types';
 
 const INITIAL_FORM_DATA: FormData = {
@@ -38,7 +39,7 @@ const INITIAL_FORM_DATA: FormData = {
 
 const App: React.FC = () => {
   const [role, setRole] = useState<Role>(Role.USER);
-  const [view, setView] = useState<'dashboard' | 'generator' | 'admin'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'generator' | 'admin' | 'help'>('dashboard');
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [currentOutputs, setCurrentOutputs] = useState<GeneratedOutput[] | undefined>(undefined);
@@ -109,6 +110,10 @@ const App: React.FC = () => {
 
         {view === 'admin' && (
           <AdminPanel />
+        )}
+
+        {view === 'help' && (
+          <HelpPage />
         )}
       </div>
     </Layout>
