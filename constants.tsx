@@ -145,6 +145,9 @@ export const CATEGORY_LEARNING_POINTS: Record<string, string[]> = {
   'Diagram': ['図解の自動生成', 'マインドマップ化', 'スライド構成の自動化', 'インフォグラフィック化'],
   'Automation': ['Google Apps Script (GAS) による業務自動化', 'カスタムGPTsの構築', 'AIによるプログラムコード生成', 'ワークフローの統合'],
   'Knowledge': ['ナレッジベースの構築', '社内情報のAI検索', 'ドキュメントの一元管理', 'AI活用ガイドライン'],
+  'Design': ['AIによるデザイン生成', 'テンプレート活用による時短', 'ブランド素材の統一管理', 'プレゼン資料の自動レイアウト'],
+  'Audio': ['AI音声合成によるナレーション作成', 'BGM・効果音の自動生成', '多言語音声の自動生成', '音声コンテンツの内製化'],
+  'Meeting': ['会議の自動文字起こし', '議事録の自動要約', '重要アクションの抽出', '会議内容の多言語翻訳'],
 };
 
 export const SYNONYM_MAP: Record<string, string[]> = {
