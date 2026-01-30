@@ -84,16 +84,14 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
     const newVariant = forceNewVariant ? Math.floor(Math.random() * 10) + 1 : variantId;
     if (forceNewVariant) setVariantId(newVariant);
 
-    const [standardOutput, longOutput] = await Promise.all([
-      generateSingle(LengthType.STANDARD, newVariant),
-      generateSingle(LengthType.LONG, newVariant),
-    ]);
+    const standardOutput = await generateSingle(LengthType.STANDARD, newVariant);
+    setOutputs(prev => ({ ...prev, [LengthType.STANDARD]: standardOutput }));
+    if (activeTab === LengthType.STANDARD) setEditedText(standardOutput.text);
 
-    setOutputs({
-      [LengthType.STANDARD]: standardOutput,
-      [LengthType.LONG]: longOutput,
-    });
-    setEditedText(activeTab === LengthType.STANDARD ? standardOutput.text : longOutput.text);
+    const longOutput = await generateSingle(LengthType.LONG, newVariant);
+    setOutputs(prev => ({ ...prev, [LengthType.LONG]: longOutput }));
+    if (activeTab === LengthType.LONG) setEditedText(longOutput.text);
+
     setIsGenerating(false);
 
     if (window.innerWidth < 1024) {
