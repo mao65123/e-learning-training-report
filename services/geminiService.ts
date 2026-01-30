@@ -3,6 +3,24 @@ import { GoogleGenAI } from "@google/genai";
 import { FormData, LengthType } from "../types";
 import { PERSONALITY_OPTIONS, TRAINING_MASTERS, CATEGORY_LEARNING_POINTS } from "../constants";
 
+async function callWithRetry<T>(fn: () => Promise<T>, maxRetries = 3, baseDelay = 3000): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      const isRateLimit = error?.status === 429 || error?.message?.includes('Resource exhausted');
+      if (isRateLimit && i < maxRetries - 1) {
+        const delay = baseDelay * Math.pow(2, i);
+        console.warn(`Rate limited. Retrying in ${delay / 1000}s... (${i + 1}/${maxRetries})`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw error;
+      }
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
   'Text': 'テキスト生成・文章作成AI',
   'Research': 'AI検索・リサーチツール',
@@ -103,19 +121,21 @@ export const polishText = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.92,
-      },
-    });
+    const response = await callWithRetry(() =>
+      ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.92,
+        },
+      })
+    );
 
     return response.text || baseDraft;
   } catch (error) {
     console.error("Gemini Error:", error);
-    return baseDraft;
+    throw new Error("AI文章生成に失敗しました。しばらく待ってから再度お試しください。");
   }
 };
 
@@ -157,18 +177,20 @@ export const refineTextWithInstruction = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
+    const response = await callWithRetry(() =>
+      ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        },
+      })
+    );
 
     return response.text || currentText;
   } catch (error) {
     console.error("Gemini Refinement Error:", error);
-    return currentText;
+    throw new Error("AI文章修正に失敗しました。しばらく待ってから再度お試しください。");
   }
 };

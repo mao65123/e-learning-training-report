@@ -63,13 +63,7 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
   const generateSingle = async (length: LengthType, variant: number): Promise<GeneratedOutput> => {
     const baseDraft = createBaseDraft(data, variant);
     const quality = calculateQualityScore(data);
-    let finalResult: string;
-    try {
-      finalResult = await polishText(baseDraft, data, length, variant);
-    } catch (e) {
-      console.error('polishText error:', e);
-      finalResult = baseDraft;
-    }
+    const finalResult = await polishText(baseDraft, data, length, variant);
     return {
       id: Math.random().toString(36).substr(2, 9),
       text: finalResult,
@@ -90,16 +84,20 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
     const newVariant = forceNewVariant ? Math.floor(Math.random() * 10) + 1 : variantId;
     if (forceNewVariant) setVariantId(newVariant);
 
-    const standardOutput = await generateSingle(LengthType.STANDARD, newVariant);
-    setOutputs(prev => ({ ...prev, [LengthType.STANDARD]: standardOutput }));
-    if (activeTab === LengthType.STANDARD) setEditedText(standardOutput.text);
+    try {
+      const standardOutput = await generateSingle(LengthType.STANDARD, newVariant);
+      setOutputs(prev => ({ ...prev, [LengthType.STANDARD]: standardOutput }));
+      if (activeTab === LengthType.STANDARD) setEditedText(standardOutput.text);
 
-    // Gemini APIのレート制限回避のため待機
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      // Gemini APIのレート制限回避のため待機
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const longOutput = await generateSingle(LengthType.LONG, newVariant);
-    setOutputs(prev => ({ ...prev, [LengthType.LONG]: longOutput }));
-    if (activeTab === LengthType.LONG) setEditedText(longOutput.text);
+      const longOutput = await generateSingle(LengthType.LONG, newVariant);
+      setOutputs(prev => ({ ...prev, [LengthType.LONG]: longOutput }));
+      if (activeTab === LengthType.LONG) setEditedText(longOutput.text);
+    } catch (e: any) {
+      alert(e.message || "AI文章生成に失敗しました。しばらく待ってから再度お試しください。");
+    }
 
     setIsGenerating(false);
 
