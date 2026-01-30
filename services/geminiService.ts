@@ -39,7 +39,7 @@ export const polishText = async (
   length: LengthType,
   variantId: number
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     console.error("API key not found");
     return baseDraft;
@@ -124,7 +124,7 @@ export const refineTextWithInstruction = async (
   instruction: string,
   data: FormData
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     console.error("API key not found");
     return currentText;
