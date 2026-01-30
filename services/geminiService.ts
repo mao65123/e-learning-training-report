@@ -99,7 +99,7 @@ export const polishText = async (
     - 学び: ${[...data.learningPoints, data.learningPointsOther].filter(Boolean).join(", ")}
     - 活用法: ${[...data.applyTasks, data.applyTasksOther].filter(Boolean).join(", ")}
     - 手法: ${[...data.applyMethods, data.applyMethodsOther].filter(Boolean).join(", ")}
-    - 目標: ${data.kpiType} を ${data.kpiValue}${data.kpiUnit} 改善
+    - KPI目標（1ヶ月あたり）: ${data.kpiType}を${data.kpiValue}${data.kpiUnit}する（※この数値は削減・短縮などの改善量を意味します。そのまま正確に使用してください）
   `;
 
   try {

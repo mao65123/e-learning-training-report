@@ -59,7 +59,7 @@ export const createBaseDraft = (data: FormData, variantId: number): string => {
     issue: `しかし${issues}といった点が課題となっており、${data.frequency ? `${data.frequency}発生する中で` : ""}${data.impact ? `${data.impact}という問題` : "多大な工数"}を抱えています。`,
     learning: `今回の研修では${allTools}を学び、特に${learnings}といった点に大きな気づきがありました。`,
     apply: `今後は${applyTasks}において、${applyMethods}を${getRandomSynonym('活用する')}ことで、業務の${getRandomSynonym('効率化')}を実現したいと考えています。`,
-    effect: `この取り組みにより、${data.kpiType || "工数"}の${data.kpiValue}${data.kpiUnit}改善を目指し、${getRandomSynonym('迅速に')}質の高いアウトプットを出せるよう注力します。`
+    effect: `この取り組みにより、1ヶ月あたり${data.kpiType || "工数"}を${data.kpiValue}${data.kpiUnit}することを目指し、${getRandomSynonym('迅速に')}質の高いアウトプットを出せるよう注力します。`
   };
 
   const skeletons = [

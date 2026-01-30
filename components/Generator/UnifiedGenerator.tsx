@@ -94,6 +94,9 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
     setOutputs(prev => ({ ...prev, [LengthType.STANDARD]: standardOutput }));
     if (activeTab === LengthType.STANDARD) setEditedText(standardOutput.text);
 
+    // Gemini APIのレート制限回避のため待機
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     const longOutput = await generateSingle(LengthType.LONG, newVariant);
     setOutputs(prev => ({ ...prev, [LengthType.LONG]: longOutput }));
     if (activeTab === LengthType.LONG) setEditedText(longOutput.text);
