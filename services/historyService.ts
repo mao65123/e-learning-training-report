@@ -158,6 +158,34 @@ export async function saveHistoryEntry(entry: HistoryEntry): Promise<boolean> {
   return true;
 }
 
+export async function updateHistoryEntry(entry: HistoryEntry): Promise<boolean> {
+  const { error: entryErr } = await supabase
+    .from('history_entries')
+    .update(toDbEntry(entry))
+    .eq('id', entry.id);
+
+  if (entryErr) {
+    console.error('Failed to update history entry:', entryErr);
+    return false;
+  }
+
+  // Delete old outputs and insert new ones
+  await supabase.from('generated_outputs').delete().eq('history_entry_id', entry.id);
+
+  if (entry.outputs.length > 0) {
+    const { error: outputsErr } = await supabase
+      .from('generated_outputs')
+      .insert(toDbOutputs(entry.id, entry.outputs));
+
+    if (outputsErr) {
+      console.error('Failed to update outputs:', outputsErr);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export async function deleteHistoryEntries(ids: string[]): Promise<boolean> {
   const { error } = await supabase
     .from('history_entries')

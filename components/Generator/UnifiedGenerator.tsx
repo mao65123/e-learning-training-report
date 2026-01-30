@@ -8,11 +8,13 @@ import { polishText, refineTextWithInstruction } from '../../services/geminiServ
 interface UnifiedGeneratorProps {
   initialData: FormData;
   initialOutputs?: GeneratedOutput[];
+  editingEntryId?: string | null;
   onSave: (entry: HistoryEntry) => void;
+  onOverwrite: (entry: HistoryEntry) => void;
   onCancel: () => void;
 }
 
-export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData, initialOutputs, onSave, onCancel }) => {
+export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData, initialOutputs, editingEntryId, onSave, onOverwrite, onCancel }) => {
   const [data, setData] = useState<FormData>(initialData);
   const [activeTab, setActiveTab] = useState<LengthType>(LengthType.STANDARD);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -112,19 +114,26 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
     setEditedText(prev);
   };
 
+  const buildEntry = (id?: string): HistoryEntry => ({
+    id: id || Date.now().toString(),
+    userId: 'user-1',
+    userName: data.userName,
+    data: data,
+    outputs: (Object.values(outputs).filter((o): o is GeneratedOutput => !!o)).map(o =>
+      o.lengthType === activeTab ? { ...o, text: editedText } : o
+    ),
+    createdAt: id && editingEntryId ? new Date().toISOString() : new Date().toISOString(),
+    status: 'submitted'
+  });
+
   const handleFinalSave = () => {
-    const entry: HistoryEntry = {
-      id: Date.now().toString(),
-      userId: 'user-1',
-      userName: data.userName,
-      data: data,
-      outputs: (Object.values(outputs).filter((o): o is GeneratedOutput => !!o)).map(o => 
-        o.lengthType === activeTab ? { ...o, text: editedText } : o
-      ),
-      createdAt: new Date().toISOString(),
-      status: 'submitted'
-    };
-    onSave(entry);
+    onSave(buildEntry());
+  };
+
+  const handleOverwrite = () => {
+    if (editingEntryId) {
+      onOverwrite(buildEntry(editingEntryId));
+    }
   };
 
   return (
@@ -567,12 +576,21 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
           )}
 
           <div className="p-4 bg-white border-t border-slate-200 flex flex-col gap-2">
-            <button 
+            {editingEntryId && (
+              <button
+                onClick={handleOverwrite}
+                disabled={!editedText || isGenerating}
+                className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md hover:bg-blue-700 transition-all disabled:opacity-50"
+              >
+                上書き保存する
+              </button>
+            )}
+            <button
               onClick={handleFinalSave}
               disabled={!editedText || isGenerating}
               className="w-full py-3 bg-green-600 text-white rounded-xl font-bold shadow-md hover:bg-green-700 transition-all disabled:opacity-50"
             >
-              この内容で履歴に保存する
+              {editingEntryId ? '新規として保存する' : 'この内容で履歴に保存する'}
             </button>
             <button 
               onClick={() => {

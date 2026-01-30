@@ -6,7 +6,7 @@ import { HistoryList } from './components/History/HistoryList';
 import { AdminPanel } from './components/Admin/AdminPanel';
 import { HelpPage } from './components/Help/HelpPage';
 import { Role, FormData, HistoryEntry, TrainingType, GeneratedOutput } from './types';
-import { fetchHistory, saveHistoryEntry, deleteHistoryEntries } from './services/historyService';
+import { fetchHistory, saveHistoryEntry, updateHistoryEntry, deleteHistoryEntries } from './services/historyService';
 
 const INITIAL_FORM_DATA: FormData = {
   userName: '',
@@ -44,6 +44,7 @@ const App: React.FC = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [currentOutputs, setCurrentOutputs] = useState<GeneratedOutput[] | undefined>(undefined);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchHistory().then(setHistory);
@@ -63,15 +64,24 @@ const App: React.FC = () => {
     }
   };
 
+  const overwriteHistory = async (entry: HistoryEntry) => {
+    const success = await updateHistoryEntry(entry);
+    if (success) {
+      setHistory(prev => prev.map(h => h.id === entry.id ? entry : h));
+    }
+  };
+
   const handleStartNew = () => {
     setFormData(INITIAL_FORM_DATA);
     setCurrentOutputs(undefined);
+    setEditingEntryId(null);
     setView('generator');
   };
 
   const handleViewDetail = (item: HistoryEntry) => {
     setFormData(item.data);
     setCurrentOutputs(item.outputs);
+    setEditingEntryId(item.id);
     setView('generator');
   };
 
@@ -100,8 +110,13 @@ const App: React.FC = () => {
           <UnifiedGenerator
             initialData={formData}
             initialOutputs={currentOutputs}
+            editingEntryId={editingEntryId}
             onSave={(entry) => {
               saveHistory(entry);
+              setView('dashboard');
+            }}
+            onOverwrite={(entry) => {
+              overwriteHistory(entry);
               setView('dashboard');
             }}
             onCancel={handleBackToDashboard}
