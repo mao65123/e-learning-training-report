@@ -389,6 +389,7 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
               <div className="flex items-center gap-2 mb-2">
                 <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">5</span>
                 <h3 className="font-bold text-slate-700">今後の目標・KPI</h3>
+                <span className="text-xs text-slate-400 ml-auto">※ 1ヶ月あたりの目標値</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <select 
@@ -403,7 +404,7 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
                 </select>
                 <input 
                   className="p-3 border border-slate-300 rounded-lg text-sm"
-                  placeholder="目標値 (例：30)"
+                  placeholder="月あたりの目標値 (例：30)"
                   value={data.kpiValue}
                   onChange={(e) => updateData({ kpiValue: e.target.value })}
                 />
