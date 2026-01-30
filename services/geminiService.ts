@@ -1,7 +1,37 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { FormData, LengthType } from "../types";
-import { PERSONALITY_OPTIONS } from "../constants";
+import { PERSONALITY_OPTIONS, TRAINING_MASTERS, CATEGORY_LEARNING_POINTS } from "../constants";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  'Text': 'テキスト生成・文章作成AI',
+  'Research': 'AI検索・リサーチツール',
+  'Video': '動画制作・編集AI',
+  'Image': '画像生成・加工AI',
+  'Diagram': '図解・スライド作成AI',
+  'Automation': '業務自動化・プログラミングツール',
+  'Knowledge': 'ナレッジ管理・情報整理AI',
+  'Audio': '音声・音楽生成AI',
+  'Design': 'デザイン支援AI',
+  'Meeting': '会議支援・議事録AI',
+};
+
+function buildToolDescription(data: FormData): string {
+  const allToolIds = [data.mainTool, ...data.additionalTools].filter(Boolean);
+  const training = TRAINING_MASTERS.find(t => t.name === data.trainingType);
+  if (!training) return '';
+
+  const descriptions = allToolIds.map(toolName => {
+    const tool = training.tools.find(t => t.name === toolName);
+    if (!tool) return `- ${toolName}`;
+    const categoryLabel = CATEGORY_LABELS[tool.category] || tool.category;
+    const capabilities = CATEGORY_LEARNING_POINTS[tool.category];
+    const capStr = capabilities ? `（主な機能: ${capabilities.join('、')}）` : '';
+    return `- ${tool.name}: ${categoryLabel}${capStr}`;
+  });
+
+  return descriptions.join('\n    ');
+}
 
 export const polishText = async (
   baseDraft: string,
@@ -25,13 +55,18 @@ export const polishText = async (
   const personality = PERSONALITY_OPTIONS.find(p => p.id === data.personality) || PERSONALITY_OPTIONS[0];
 
   const allTools = [data.mainTool, ...data.additionalTools].filter(Boolean).join("、");
+  const toolDescriptions = buildToolDescription(data);
 
   const systemInstruction = `
     あなたは企業の「訓練実施報告書」の文章生成エキスパートです。
     ユーザーが入力した情報を元に、自然で実務的な日本語で「6 内容（学んだこと、今後の活かし方）」欄の文章を作成してください。
-    
+
     【指定された性格・文章スタイル】
     ${personality.name}: ${personality.desc}
+
+    【使用AIツールの正確な情報（必ずこの情報に基づいて記述すること）】
+    ${toolDescriptions}
+    ※ 上記のカテゴリと機能に厳密に従ってください。テキスト生成AIを画像生成AIと記述したり、動画制作AIをリサーチツールと記述するなど、ツールの種類と機能を取り違えないでください。
 
     【文章のトーン・マナー】
     - 実直で誠実なビジネス文書（過剰な美辞麗句は不要）。
@@ -44,7 +79,7 @@ export const polishText = async (
     2. 断定を避け「〜を目指す」「〜を見込む」「〜できるようになる」「〜だと感じた」等、主観と客観を混ぜる。
     3. 同一の接続詞（〜することで等）の連続禁止。
     4. 指定された文字数を厳守：${lengthPrompt}。
-    5. 使用ツール（${allTools}）の実名と具体的な機能を自然に組み込む。
+    5. 使用ツール（${allTools}）の実名と、上記で定義された正確な機能を自然に組み込む。各ツールの機能は上記カテゴリに基づき、他ツールの機能と混同しないこと。
     6. 「承知しました」「以下が文章です」などの前置きや説明は一切不要。報告文の本文のみを出力すること。
   `;
 
