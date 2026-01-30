@@ -1,11 +1,9 @@
-import type { Context } from "@netlify/edge-functions";
-
 const CREDENTIALS = {
   username: "aoiumi",
   password: "aoiumi",
 };
 
-export default async function handler(request: Request, context: Context) {
+export default async function handler(request: Request, context: any) {
   const authorization = request.headers.get("authorization");
 
   if (authorization) {
