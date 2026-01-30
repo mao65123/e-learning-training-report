@@ -59,15 +59,14 @@ export const polishText = async (
 ): Promise<string> => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("API key not found");
-    return baseDraft;
+    throw new Error("APIキーが設定されていません");
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-2.0-flash";
-  
+  const model = "gemini-2.5-flash";
+
   const lengthPrompt = {
-    standard: "280文字から420文字程度",
-    long: "450文字から650文字程度"
+    [LengthType.STANDARD]: "280文字から420文字程度",
+    [LengthType.LONG]: "450文字から650文字程度"
   }[length];
 
   const personality = PERSONALITY_OPTIONS.find(p => p.id === data.personality) || PERSONALITY_OPTIONS[0];
@@ -146,11 +145,10 @@ export const refineTextWithInstruction = async (
 ): Promise<string> => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("API key not found");
-    return currentText;
+    throw new Error("APIキーが設定されていません");
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = "gemini-2.0-flash";
+  const model = "gemini-2.5-flash";
   
   const personality = PERSONALITY_OPTIONS.find(p => p.id === data.personality) || PERSONALITY_OPTIONS[0];
 
