@@ -38,7 +38,15 @@ const INITIAL_FORM_DATA: FormData = {
   personality: 'logical',
 };
 
+const AUTH_ID = 'aoiumi';
+const AUTH_PW = 'aoiumi';
+
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem('authenticated') === 'true');
+  const [authId, setAuthId] = useState('');
+  const [authPw, setAuthPw] = useState('');
+  const [authError, setAuthError] = useState(false);
+
   const [role, setRole] = useState<Role>(Role.USER);
   const [view, setView] = useState<'dashboard' | 'generator' | 'admin' | 'help'>('dashboard');
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -47,8 +55,48 @@ const App: React.FC = () => {
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchHistory().then(setHistory);
-  }, []);
+    if (isAuthenticated) fetchHistory().then(setHistory);
+  }, [isAuthenticated]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (authId === AUTH_ID && authPw === AUTH_PW) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('authenticated', 'true');
+      setAuthError(false);
+    } else {
+      setAuthError(true);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm space-y-4">
+          <h2 className="text-xl font-bold text-slate-700 text-center">ログイン</h2>
+          {authError && <p className="text-red-500 text-sm text-center">IDまたはパスワードが違います</p>}
+          <input
+            type="text"
+            placeholder="ID"
+            value={authId}
+            onChange={e => setAuthId(e.target.value)}
+            className="w-full p-3 border border-slate-300 rounded-lg text-sm"
+            autoFocus
+          />
+          <input
+            type="password"
+            placeholder="パスワード"
+            value={authPw}
+            onChange={e => setAuthPw(e.target.value)}
+            className="w-full p-3 border border-slate-300 rounded-lg text-sm"
+          />
+          <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
+            ログイン
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   const saveHistory = async (newEntry: HistoryEntry) => {
     const success = await saveHistoryEntry(newEntry);
