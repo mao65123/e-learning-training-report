@@ -6,6 +6,7 @@ import { HistoryList } from './components/History/HistoryList';
 import { AdminPanel } from './components/Admin/AdminPanel';
 import { HelpPage } from './components/Help/HelpPage';
 import { Role, FormData, HistoryEntry, TrainingType, GeneratedOutput } from './types';
+import { fetchHistory, saveHistoryEntry, deleteHistoryEntries } from './services/historyService';
 
 const INITIAL_FORM_DATA: FormData = {
   userName: '',
@@ -45,22 +46,21 @@ const App: React.FC = () => {
   const [currentOutputs, setCurrentOutputs] = useState<GeneratedOutput[] | undefined>(undefined);
 
   useEffect(() => {
-    const saved = localStorage.getItem('training_report_history');
-    if (saved) {
-      setHistory(JSON.parse(saved));
-    }
+    fetchHistory().then(setHistory);
   }, []);
 
-  const saveHistory = (newEntry: HistoryEntry) => {
-    const updated = [newEntry, ...history];
-    setHistory(updated);
-    localStorage.setItem('training_report_history', JSON.stringify(updated));
+  const saveHistory = async (newEntry: HistoryEntry) => {
+    const success = await saveHistoryEntry(newEntry);
+    if (success) {
+      setHistory(prev => [newEntry, ...prev]);
+    }
   };
 
-  const deleteHistory = (ids: string[]) => {
-    const updated = history.filter(h => !ids.includes(h.id));
-    setHistory(updated);
-    localStorage.setItem('training_report_history', JSON.stringify(updated));
+  const deleteHistory = async (ids: string[]) => {
+    const success = await deleteHistoryEntries(ids);
+    if (success) {
+      setHistory(prev => prev.filter(h => !ids.includes(h.id)));
+    }
   };
 
   const handleStartNew = () => {
