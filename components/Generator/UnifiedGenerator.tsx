@@ -60,34 +60,42 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
     selectedCategories.flatMap(cat => CATEGORY_LEARNING_POINTS[cat as string] || [])
   ));
 
-  const handleGenerate = async (length: LengthType, forceNewVariant = false) => {
+  const generateSingle = async (length: LengthType, variant: number): Promise<GeneratedOutput> => {
+    const baseDraft = createBaseDraft(data, variant);
+    const quality = calculateQualityScore(data);
+    const finalResult = await polishText(baseDraft, data, length, variant);
+    return {
+      id: Math.random().toString(36).substr(2, 9),
+      text: finalResult,
+      lengthType: length,
+      variantId: variant,
+      score: quality.score,
+      warnings: quality.warnings
+    };
+  };
+
+  const handleGenerate = async (_length?: LengthType, forceNewVariant = false) => {
     if (!data.mainTool || !data.userName) {
       alert("名前とメインツールを入力してください。");
       return;
     }
-    
+
     setIsGenerating(true);
     const newVariant = forceNewVariant ? Math.floor(Math.random() * 10) + 1 : variantId;
     if (forceNewVariant) setVariantId(newVariant);
 
-    const baseDraft = createBaseDraft(data, newVariant);
-    const quality = calculateQualityScore(data);
-    
-    const finalResult = await polishText(baseDraft, data, length, newVariant);
-    
-    const output: GeneratedOutput = {
-      id: Math.random().toString(36).substr(2, 9),
-      text: finalResult,
-      lengthType: length,
-      variantId: newVariant,
-      score: quality.score,
-      warnings: quality.warnings
-    };
+    const [standardOutput, longOutput] = await Promise.all([
+      generateSingle(LengthType.STANDARD, newVariant),
+      generateSingle(LengthType.LONG, newVariant),
+    ]);
 
-    setOutputs(prev => ({ ...prev, [length]: output }));
-    setEditedText(finalResult);
+    setOutputs({
+      [LengthType.STANDARD]: standardOutput,
+      [LengthType.LONG]: longOutput,
+    });
+    setEditedText(activeTab === LengthType.STANDARD ? standardOutput.text : longOutput.text);
     setIsGenerating(false);
-    
+
     if (window.innerWidth < 1024) {
       document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -463,7 +471,7 @@ export const UnifiedGenerator: React.FC<UnifiedGeneratorProps> = ({ initialData,
                   key={l}
                   onClick={() => {
                     setActiveTab(l);
-                    if (!outputs[l]) handleGenerate(l);
+                    if (outputs[l]) setEditedText(outputs[l]!.text);
                   }}
                   className={`flex-1 py-4 text-xs font-bold transition-colors ${activeTab === l ? 'bg-white text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:bg-slate-100'}`}
                 >
